@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimulaVotoPará2026</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="glass-container">
+    <h2>SimulaVotoPará2026</h2>
+    
+    <div class="header-status">
+        <span id="datetime">--/--/---- --:--</span>
+        <span>Acessos: <strong id="access-count">1</strong></span>
+        <span>Status: <span class="status-online">● Online</span></span>
+    </div>
+
+    <div class="alert-simulacao">
+        <strong>Aviso:</strong> Este sistema é apenas uma simulação em tempo real.
+    </div>
+
+    <!-- Lista de Opções -->
+    <div id="candidates-list">
+        <div class="candidato-card">
+            <div class="candidato-img">D</div>
+            <div class="candidato-info">
+                <strong>Opção Daniel</strong>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="bar-daniel"></div>
+                </div>
+                <span class="pct-text" id="pct-daniel">0% (0 votos)</span>
+            </div>
+            <button onclick="votar('daniel')">Votar</button>
+        </div>
+
+        <div class="candidato-card">
+            <div class="candidato-img">H</div>
+            <div class="candidato-info">
+                <strong>Opção Hanna</strong>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="bar-hanna"></div>
+                </div>
+                <span class="pct-text" id="pct-hanna">0% (0 votos)</span>
+            </div>
+            <button onclick="votar('hanna')">Votar</button>
+        </div>
+    </div>
+
+    <div class="actions">
+        <button onclick="compartilhar()">Compartilhar Enquete</button>
+    </div>
+
+    <div class="footer-credits">
+        Desenvolvido por: <strong>WKB SISTEMAS</strong> | 
+        Site: <a href="http://www.wkbsistemas.com.br" target="_blank">www.wkbsistemas.com.br</a>
+    </div>
+</div>
+
+<!-- Script Principal -->
+<script type="module" src="app.js"></script>
+
+</body>
+</html>
