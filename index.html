@@ -3,60 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SimulaVotoPará2026</title>
+    <title>Pesquisa Eleitoral - Tempo Real</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="glass-container">
-    <h2>SimulaVotoPará2026</h2>
-    
-    <div class="header-status">
+<div class="globo-container">
+    <div class="header-pesquisa">
+        <span class="badge-ao-vivo">● AO VIVO</span>
+        <h2>PESQUISA DE INTENÇÃO DE VOTO</h2>
+        <p class="subtitulo">Simulação Pará 2026</p>
+    </div>
+
+    <div class="status-bar">
         <span id="datetime">--/--/---- --:--</span>
-        <span>Acessos: <strong id="access-count">1</strong></span>
-        <span>Status: <span class="status-online">● Online</span></span>
+        <span id="total-votos-header">Total de votos: 0</span>
     </div>
 
-    <div class="alert-simulacao">
-        <strong>Aviso:</strong> Este sistema é apenas uma simulação em tempo real.
-    </div>
-
-    <!-- Lista de Opções da Enquete -->
-    <div id="candidates-list">
-        <!-- Opção Daniel -->
-        <div class="candidato-card">
-            <img src="daniel.png" alt="Daniel" class="candidato-img">
-            <div class="candidato-info">
-                <strong>Opção Daniel</strong>
-                <div class="progress-bar-container">
-                    <div class="progress-bar" id="bar-daniel"></div>
-                </div>
-                <span class="pct-text" id="pct-daniel">0% (0 votos)</span>
-            </div>
-            <button onclick="votar('daniel')">Votar</button>
-        </div>
-
-        <!-- Opção Hanna -->
-        <div class="candidato-card">
-            <img src="hanna.png" alt="Hanna" class="candidato-img">
-            <div class="candidato-info">
-                <strong>Opção Hanna</strong>
-                <div class="progress-bar-container">
-                    <div class="progress-bar" id="bar-hanna"></div>
-                </div>
-                <span class="pct-text" id="pct-hanna">0% (0 votos)</span>
-            </div>
-            <button onclick="votar('hanna')">Votar</button>
-        </div>
-    </div>
+    <!-- Os candidatos serão ordenados e inseridos dinamicamente aqui pelo JS -->
+    <div id="candidates-list" class="candidates-container"></div>
 
     <div class="actions">
-        <button onclick="compartilhar()">Compartilhar Enquete</button>
+        <button onclick="compartilhar()" class="btn-share">Compartilhar Enquete</button>
     </div>
 
     <div class="footer-credits">
         Desenvolvido por: <strong>WKB SISTEMAS</strong> | 
-        Site: <a href="http://www.wkbsistemas.com.br" target="_blank">www.wkbsistemas.com.br</a>
+        <a href="http://www.wkbsistemas.com.br" target="_blank">www.wkbsistemas.com.br</a>
     </div>
 </div>
 

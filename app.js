@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, doc, updateDoc, increment, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// Substitua com as chaves encontradas nas Configurações do seu Firebase
+// Insira as chaves do seu projeto Firebase
 const firebaseConfig = {
     apiKey: "SUA_API_KEY_AQUI",
     authDomain: "simula-voto-para.firebaseapp.com",
@@ -15,34 +15,76 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Escuta as alterações na coleção 'candidatos' no Cloud Firestore
+// Mapeamento das informações dos candidatos
+const candidatosInfo = {
+    'daniel': { nome: 'Daniel', foto: 'daniel.png' },
+    'hanna': { nome: 'Hanna', foto: 'hanna.png' }
+};
+
+// Escuta em tempo real o Cloud Firestore
 onSnapshot(collection(db, "candidatos"), (snapshot) => {
     let totalVotos = 0;
-    const dados = {};
+    const listaCandidatos = [];
 
     snapshot.forEach((doc) => {
-        const val = doc.data().votos || 0;
-        dados[doc.id] = val;
-        totalVotos += val;
+        const id = doc.id;
+        const votos = doc.data().votos || 0;
+        totalVotos += votos;
+
+        if (candidatosInfo[id]) {
+            listaCandidatos.push({
+                id: id,
+                nome: candidatosInfo[id].nome,
+                foto: candidatosInfo[id].foto,
+                votos: votos
+            });
+        }
     });
 
-    // Atualiza barras e porcentagens para os documentos 'daniel' e 'hanna'
-    ['daniel', 'hanna'].forEach(id => {
-        const votos = dados[id] || 0;
-        const pct = totalVotos > 0 ? ((votos / totalVotos) * 100).toFixed(1) : 0;
-        
-        const bar = document.getElementById(`bar-${id}`);
-        const pctText = document.getElementById(`pct-${id}`);
-        
-        if (bar) bar.style.width = `${pct}%`;
-        if (pctText) pctText.innerText = `${pct}% (${votos} votos)`;
-    });
+    // REGRA DE ORDENAÇÃO: Ordena do maior para o menor número de votos
+    listaCandidatos.sort((a, b) => b.votos - a.votos);
+
+    // Atualiza o total de votos no topo
+    const totalEl = document.getElementById('total-votos-header');
+    if (totalEl) totalEl.innerText = `Total de votos: ${totalVotos}`;
+
+    // Renderiza a lista na tela já ordenada
+    renderizarLista(listaCandidatos, totalVotos);
 });
 
-// Registrar voto com travamento individual via LocalStorage
+function renderizarLista(candidatos, totalVotos) {
+    const container = document.getElementById('candidates-list');
+    if (!container) return;
+
+    container.innerHTML = ''; // Limpa para reordenar
+
+    candidatos.forEach((c) => {
+        const pct = totalVotos > 0 ? ((c.votos / totalVotos) * 100).toFixed(1) : 0;
+
+        const card = document.createElement('div');
+        card.className = 'candidato-card';
+        card.innerHTML = `
+            <img src="${c.foto}" alt="${c.nome}" class="candidato-img">
+            <div class="candidato-info">
+                <div class="candidato-header">
+                    <span class="candidato-nome">${c.nome}</span>
+                    <span class="candidato-pct">${pct}%</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: ${pct}%"></div>
+                </div>
+                <span class="votos-qtd">${c.votos} votos</span>
+            </div>
+            <button class="btn-votar" onclick="votar('${c.id}')">Votar</button>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// Registrar voto com bloqueio LocalStorage
 window.votar = async function(docId) {
     if (localStorage.getItem('ja_votou_simulacao')) {
-        alert('Você já registrou seu voto nesta simulação!');
+        alert('Você já registrou seu voto nesta pesquisa!');
         return;
     }
 
@@ -55,14 +97,14 @@ window.votar = async function(docId) {
             votos: increment(1)
         });
         localStorage.setItem('ja_votou_simulacao', 'true');
-        alert('Voto registrado com sucesso!');
+        alert('Voto registrado!');
     } catch (err) {
-        console.error("Erro ao registrar voto:", err);
-        alert('Erro ao computar o voto. Verifique a aba de Regras no Cloud Firestore.');
+        console.error("Erro ao registrar no Firestore:", err);
+        alert('Erro ao registrar voto. Verifique a publicação das regras no Cloud Firestore.');
     }
 };
 
-// Relógio do Sistema
+// Relógio
 function updateClock() {
     const now = new Date();
     const el = document.getElementById('datetime');
@@ -71,12 +113,12 @@ function updateClock() {
 setInterval(updateClock, 1000);
 updateClock();
 
-// Botão para compartilhar
+// Compartilhamento
 window.compartilhar = function() {
     if (navigator.share) {
         navigator.share({
-            title: 'SimulaVotoPará2026',
-            text: 'Participe da simulação em tempo real:',
+            title: 'Pesquisa Eleitoral',
+            text: 'Confira os resultados parciais:',
             url: window.location.href,
         });
     } else {
