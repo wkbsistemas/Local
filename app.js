@@ -1,7 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, doc, updateDoc, increment, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// Insira as chaves do seu projeto Firebase
 const firebaseConfig = {
     apiKey: "SUA_API_KEY_AQUI",
     authDomain: "simula-voto-para.firebaseapp.com",
@@ -11,52 +10,66 @@ const firebaseConfig = {
     appId: "1:123456789:web:abcdef"
 };
 
-// Inicialização
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Mapeamento das informações dos candidatos
+// Informações padrões caso os nomes no banco venham apenas em minúsculas
 const candidatosInfo = {
     'daniel': { nome: 'Daniel', foto: 'daniel.png' },
     'hanna': { nome: 'Hanna', foto: 'hanna.png' }
 };
 
-// Escuta em tempo real o Cloud Firestore
 onSnapshot(collection(db, "candidatos"), (snapshot) => {
     let totalVotos = 0;
     const listaCandidatos = [];
 
     snapshot.forEach((doc) => {
-        const id = doc.id;
+        const id = doc.id.toLowerCase();
         const votos = doc.data().votos || 0;
         totalVotos += votos;
 
-        if (candidatosInfo[id]) {
-            listaCandidatos.push({
-                id: id,
-                nome: candidatosInfo[id].nome,
-                foto: candidatosInfo[id].foto,
-                votos: votos
-            });
-        }
+        const info = candidatosInfo[id] || { 
+            nome: doc.id.charAt(0).toUpperCase() + doc.id.slice(1), 
+            foto: `${id}.png` 
+        };
+
+        listaCandidatos.push({
+            id: doc.id,
+            nome: info.nome,
+            foto: info.foto,
+            votos: votos
+        });
     });
 
-    // REGRA DE ORDENAÇÃO: Ordena do maior para o menor número de votos
+    // Se o banco ainda estiver vazio, insere os dois para não ficar em branco no teste
+    if (listaCandidatos.length === 0) {
+        listaCandidatos.push(
+            { id: 'daniel', nome: 'Daniel', foto: 'daniel.png', votos: 0 },
+            { id: 'hanna', nome: 'Hanna', foto: 'hanna.png', votos: 0 }
+        );
+    }
+
+    // REGRA DE ORDENAÇÃO: Quem tem mais votos fica em 1º lugar
     listaCandidatos.sort((a, b) => b.votos - a.votos);
 
-    // Atualiza o total de votos no topo
     const totalEl = document.getElementById('total-votos-header');
     if (totalEl) totalEl.innerText = `Total de votos: ${totalVotos}`;
 
-    // Renderiza a lista na tela já ordenada
     renderizarLista(listaCandidatos, totalVotos);
+}, (error) => {
+    console.error("Erro no Firestore:", error);
+    // Caso falhe as regras, renderiza com zero votos para não sumir da tela
+    renderizarLista([
+        { id: 'daniel', nome: 'Daniel', foto: 'daniel.png', votos: 0 },
+        { id: 'hanna', nome: 'Hanna', foto: 'hanna.png', votos: 0 }
+    ], 0);
 });
 
 function renderizarLista(candidatos, totalVotos) {
     const container = document.getElementById('candidates-list');
     if (!container) return;
 
-    container.innerHTML = ''; // Limpa para reordenar
+    container.innerHTML = '';
 
     candidatos.forEach((c) => {
         const pct = totalVotos > 0 ? ((c.votos / totalVotos) * 100).toFixed(1) : 0;
@@ -64,7 +77,7 @@ function renderizarLista(candidatos, totalVotos) {
         const card = document.createElement('div');
         card.className = 'candidato-card';
         card.innerHTML = `
-            <img src="${c.foto}" alt="${c.nome}" class="candidato-img">
+            <img src="${c.foto}" alt="${c.nome}" class="candidato-img" onerror="this.src='https://via.placeholder.com/50'">
             <div class="candidato-info">
                 <div class="candidato-header">
                     <span class="candidato-nome">${c.nome}</span>
@@ -81,7 +94,6 @@ function renderizarLista(candidatos, totalVotos) {
     });
 }
 
-// Registrar voto com bloqueio LocalStorage
 window.votar = async function(docId) {
     if (localStorage.getItem('ja_votou_simulacao')) {
         alert('Você já registrou seu voto nesta pesquisa!');
@@ -97,14 +109,13 @@ window.votar = async function(docId) {
             votos: increment(1)
         });
         localStorage.setItem('ja_votou_simulacao', 'true');
-        alert('Voto registrado!');
+        alert('Voto registrado com sucesso!');
     } catch (err) {
-        console.error("Erro ao registrar no Firestore:", err);
-        alert('Erro ao registrar voto. Verifique a publicação das regras no Cloud Firestore.');
+        console.error("Erro ao registrar voto:", err);
+        alert('Erro ao registrar voto. Verifique se publicou as Regras no Firestore.');
     }
 };
 
-// Relógio
 function updateClock() {
     const now = new Date();
     const el = document.getElementById('datetime');
@@ -113,7 +124,6 @@ function updateClock() {
 setInterval(updateClock, 1000);
 updateClock();
 
-// Compartilhamento
 window.compartilhar = function() {
     if (navigator.share) {
         navigator.share({
