@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, doc, updateDoc, increment, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// Substitua com as credenciais obtidas no Console do Firebase (Geral > Seus aplicativos)
+// Substitua com as chaves encontradas nas Configurações do seu Firebase
 const firebaseConfig = {
     apiKey: "SUA_API_KEY_AQUI",
     authDomain: "simula-voto-para.firebaseapp.com",
@@ -11,11 +11,11 @@ const firebaseConfig = {
     appId: "1:123456789:web:abcdef"
 };
 
-// Inicialização do Firebase
+// Inicialização
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Atualização de dados em tempo real
+// Escuta as alterações na coleção 'candidatos' no Cloud Firestore
 onSnapshot(collection(db, "candidatos"), (snapshot) => {
     let totalVotos = 0;
     const dados = {};
@@ -26,7 +26,7 @@ onSnapshot(collection(db, "candidatos"), (snapshot) => {
         totalVotos += val;
     });
 
-    // Atualiza barras e porcentagens dos documentos 'daniel' e 'hanna'
+    // Atualiza barras e porcentagens para os documentos 'daniel' e 'hanna'
     ['daniel', 'hanna'].forEach(id => {
         const votos = dados[id] || 0;
         const pct = totalVotos > 0 ? ((votos / totalVotos) * 100).toFixed(1) : 0;
@@ -39,10 +39,10 @@ onSnapshot(collection(db, "candidatos"), (snapshot) => {
     });
 });
 
-// Registrar voto e bloquear votos duplicados
+// Registrar voto com travamento individual via LocalStorage
 window.votar = async function(docId) {
     if (localStorage.getItem('ja_votou_simulacao')) {
-        alert('Você já registrou seu voto!');
+        alert('Você já registrou seu voto nesta simulação!');
         return;
     }
 
@@ -58,11 +58,11 @@ window.votar = async function(docId) {
         alert('Voto registrado com sucesso!');
     } catch (err) {
         console.error("Erro ao registrar voto:", err);
-        alert('Erro ao computar voto. Verifique se as regras foram publicadas no Firestore.');
+        alert('Erro ao computar o voto. Verifique a aba de Regras no Cloud Firestore.');
     }
 };
 
-// Exibição da Data e Hora
+// Relógio do Sistema
 function updateClock() {
     const now = new Date();
     const el = document.getElementById('datetime');

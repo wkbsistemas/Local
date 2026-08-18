@@ -1,4 +1,4 @@
-/* Fundo Animado com Cores em Movimento */
+/* Fundo Animado com Cores se Movendo */
 body {
     margin: 0;
     padding: 20px;
@@ -19,7 +19,7 @@ body {
     100% { background-position: 0% 50%; }
 }
 
-/* Glassmorphism (Efeito Vidro) */
+/* Tema Glassmorphism (Efeito Vidro) */
 .glass-container {
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(12px);
@@ -65,22 +65,19 @@ body {
 }
 
 .candidato-img {
-    width: 50px;
-    height: 50px;
+    width: 55px;
+    height: 55px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 1.2em;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.2);
 }
 
 .candidato-info {
     flex-grow: 1;
 }
 
-/* Gráfico em Barra Animado */
+/* Gráfico de Barra Animado */
 .progress-bar-container {
     background: rgba(0, 0, 0, 0.2);
     border-radius: 10px;
